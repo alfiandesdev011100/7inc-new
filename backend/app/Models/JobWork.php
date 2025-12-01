@@ -9,10 +9,12 @@ class JobWork extends Model
 {
     use HasFactory;
 
+    protected $table = 'job_works';
+
     protected $fillable = [
         'title',
         'company',
         'location',
-        'close_date',
+        'close_date'
     ];
 }

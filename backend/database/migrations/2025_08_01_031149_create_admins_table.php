@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
+            $table->enum('role', ['super_admin', 'admin_konten'])->default('admin_konten');
+            $table->string('avatar')->nullable(); // Saya lihat di controller ada avatar, jadi tambahkan juga biar ga error
             $table->timestamps();
         });
     }

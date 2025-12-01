@@ -22,7 +22,7 @@ class NewsController extends Controller
             'excerpt'      => $n->excerpt,
             'body'         => $n->body,
             'cover_url'    => $n->cover_url,
-            'is_published' => $n->is_published,
+            'is_published' => (bool) $n->is_published,
             'published_at' => optional($n->published_at)->toIso8601String(),
             'updated_at'   => optional($n->updated_at)->toIso8601String(),
             'author'       => $n->author,
@@ -38,25 +38,17 @@ class NewsController extends Controller
 
     // ===== Public Endpoints =====
 
-    /**
-     * GET /api/news
-     * Query params:
-     *  - page (default 1)
-     *  - per_page (default 9) -> untuk grid
-     *  - q (optional search di title)
-     */
     public function index(Request $request)
     {
         $perPage = (int)($request->integer('per_page') ?: 9);
         $q = trim((string)$request->get('q', ''));
 
-        $base = News::published();
+        $base = News::published(); // Hanya yang sudah publish
 
         if ($q !== '') {
-            $base->where('title', 'like', '%'.$q.'%');
+            $base->where('title', 'like', '%' . $q . '%');
         }
 
-        // featured = terbaru berdasarkan updated_at
         $featured = (clone $base)->ordered()->first();
 
         $listQuery = (clone $base)
@@ -80,9 +72,6 @@ class NewsController extends Controller
         ], 200);
     }
 
-    /**
-     * GET /api/news/{idOrSlug}
-     */
     public function show(string $idOrSlug)
     {
         $news = $this->findByIdOrSlug($idOrSlug);
@@ -93,13 +82,38 @@ class NewsController extends Controller
         return response()->json(['status' => true, 'data' => $this->serialize($news)], 200);
     }
 
-    // ===== Admin (protected by auth:sanctum) =====
+    // ===== Admin Endpoints (Auth Required) =====
 
-    /**
-     * POST /api/admin/news
-     * fields: title (req), body (req), excerpt (opt), cover (file opt),
-     *         is_published (bool), author (opt)
-     */
+    // [BARU] Untuk tabel di halaman admin (Lihat semua: Draft + Published)
+    public function adminIndex(Request $request)
+    {
+        $perPage = (int)($request->integer('per_page') ?: 10);
+        $q = trim((string)$request->get('q', ''));
+
+        $query = News::query();
+
+        if ($q !== '') {
+            $query->where('title', 'like', '%' . $q . '%');
+        }
+
+        // Urutkan dari yang paling baru diupdate
+        $query->orderByDesc('updated_at');
+
+        $p = $query->paginate($perPage);
+
+        return response()->json([
+            'status' => true,
+            'data'   => [
+                'list' => collect($p->items())->map(fn($n) => $this->serialize($n))->values(),
+                'meta' => [
+                    'current_page' => $p->currentPage(),
+                    'last_page'    => $p->lastPage(),
+                    'total'        => $p->total(),
+                ],
+            ],
+        ], 200);
+    }
+
     public function store(Request $request)
     {
         $v = Validator::make($request->all(), [
@@ -121,8 +135,7 @@ class NewsController extends Controller
             $news->cover_path = $request->file('cover')->store('news', 'public');
         }
 
-        $news->save();
-        $news->refresh();
+        $news->save(); // Slug & Published_at handled by Model Hook
 
         return response()->json([
             'status'  => true,
@@ -131,10 +144,6 @@ class NewsController extends Controller
         ], 201);
     }
 
-    /**
-     * PATCH /api/admin/news/{idOrSlug}
-     * (meng-update berita; updated_at otomatis berubah → jadi featured terbaru)
-     */
     public function update(Request $request, string $idOrSlug)
     {
         $news = $this->findByIdOrSlug($idOrSlug);
@@ -145,7 +154,7 @@ class NewsController extends Controller
             'excerpt'      => 'sometimes|nullable|string|max:500',
             'body'         => 'sometimes|required|string',
             'cover'        => 'sometimes|nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-            'is_published' => 'sometimes|boolean',
+            'is_published' => 'sometimes|boolean', // Frontend kirim "1" atau "0" string via FormData, Laravel handle ini
             'author'       => 'sometimes|nullable|string|max:120',
         ]);
 
@@ -153,7 +162,13 @@ class NewsController extends Controller
             return response()->json(['status' => false, 'errors' => $v->errors()], 422);
         }
 
-        $news->fill($v->validated());
+        // Handle is_published manual conversion if needed, but 'boolean' validation rule usually handles "1"/"0"
+        $data = $v->validated();
+        if ($request->has('is_published')) {
+            $data['is_published'] = filter_var($request->input('is_published'), FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $news->fill($data);
 
         if ($request->hasFile('cover')) {
             if ($news->cover_path && Storage::disk('public')->exists($news->cover_path)) {
@@ -162,13 +177,7 @@ class NewsController extends Controller
             $news->cover_path = $request->file('cover')->store('news', 'public');
         }
 
-        // published_at setter
-        if ($news->is_published && !$news->published_at) {
-            $news->published_at = now();
-        }
-
         $news->save();
-        $news->refresh();
 
         return response()->json([
             'status'  => true,
@@ -177,41 +186,26 @@ class NewsController extends Controller
         ], 200);
     }
 
-    /**
-     * DELETE /api/admin/news/{idOrSlug}
-     * Soft delete
-     */
     public function destroy(string $idOrSlug)
     {
         $news = $this->findByIdOrSlug($idOrSlug);
         if (!$news) return response()->json(['status' => false, 'message' => 'Not found'], 404);
 
-        $news->delete();
+        if ($news->cover_path && Storage::disk('public')->exists($news->cover_path)) {
+            Storage::disk('public')->delete($news->cover_path);
+        }
+
+        $news->delete(); // Soft delete jika trait aktif, atau force delete
 
         return response()->json(['status' => true, 'message' => 'News deleted'], 200);
     }
 
-    /**
-     * POST /api/admin/news/{idOrSlug}/publish
-     * body: { is_published: boolean }
-     */
     public function togglePublish(Request $request, string $idOrSlug)
     {
         $news = $this->findByIdOrSlug($idOrSlug);
         if (!$news) return response()->json(['status' => false, 'message' => 'Not found'], 404);
 
-        $v = Validator::make($request->all(), [
-            'is_published' => 'required|boolean',
-        ]);
-
-        if ($v->fails()) {
-            return response()->json(['status' => false, 'errors' => $v->errors()], 422);
-        }
-
         $news->is_published = (bool)$request->boolean('is_published');
-        if ($news->is_published && !$news->published_at) {
-            $news->published_at = now();
-        }
         $news->save();
 
         return response()->json([

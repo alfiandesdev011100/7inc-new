@@ -6,24 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('job_works', function (Blueprint $table) {
             $table->id();
-            $table->string('title'); // Posisi pekerjaan
-            $table->string('company'); // Nama perusahaan
-            $table->string('location'); // Lokasi pekerjaan
-            $table->date('close_date'); // Tanggal penutupan lowongan
+            $table->string('title');        // Contoh: UI/UX Designer
+            $table->string('company');      // Contoh: Seven Inc
+            $table->string('location');     // Contoh: Yogyakarta
+            $table->date('close_date');     // Tanggal penutupan
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('job_works');

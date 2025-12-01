@@ -3,61 +3,74 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobWork;
+use App\Models\JobWork; // Model tetap Singular (JobWork) sesuai standar Laravel
 use Illuminate\Http\Request;
 
+// PERBAIKAN: Nama Class harus SAMA PERSIS dengan nama file (Pakai 's')
 class JobWorksController extends Controller
 {
-    // Menampilkan semua lowongan pekerjaan dengan pagination
-    public function index(Request $request)
+    // GET: Ambil semua data
+    public function index()
     {
-        $page = $request->input('page', 1); // Mendapatkan nomor halaman yang diminta
-        $jobs = JobWork::paginate(5); // Setiap halaman hanya 5 data
-
-        return response()->json($jobs, 200); // Mengembalikan data dengan pagination
+        $jobs = JobWork::latest()->paginate(10);
+        return response()->json($jobs);
     }
 
-    // Menampilkan lowongan pekerjaan berdasarkan ID
-    public function show($id)
-    {
-        $job = JobWork::findOrFail($id);
-        return response()->json($job, 200);
-    }
-
-    // Menambahkan lowongan pekerjaan baru
+    // POST: Simpan data baru
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'company' => 'required|string',
-            'location' => 'required|string',
+        $validated = $request->validate([
+            'title'      => 'required|string|max:255',
+            'company'    => 'required|string|max:255',
+            'location'   => 'required|string|max:255',
             'close_date' => 'required|date',
         ]);
 
-        $job = JobWork::create($data);
-        return response()->json($job, 201);
+        $job = JobWork::create($validated);
+
+        return response()->json([
+            'message' => 'Posisi berhasil ditambahkan',
+            'data'    => $job
+        ], 201);
     }
 
-    // Memperbarui lowongan pekerjaan
+    // GET: Ambil detail 1 data
+    public function show($id)
+    {
+        $job = JobWork::find($id);
+        if (!$job) return response()->json(['message' => 'Not found'], 404);
+        return response()->json(['data' => $job]);
+    }
+
+    // PUT: Update data
     public function update(Request $request, $id)
     {
-        $data = $request->validate([
-            'title' => 'sometimes|required|string',
-            'company' => 'sometimes|required|string',
-            'location' => 'sometimes|required|string',
-            'close_date' => 'sometimes|required|date',
+        $job = JobWork::find($id);
+        if (!$job) return response()->json(['message' => 'Not found'], 404);
+
+        $validated = $request->validate([
+            'title'      => 'required|string|max:255',
+            'company'    => 'required|string|max:255',
+            'location'   => 'required|string|max:255',
+            'close_date' => 'required|date',
         ]);
 
-        $job = JobWork::findOrFail($id);
-        $job->update($data);
-        return response()->json($job, 200);
+        $job->update($validated);
+
+        return response()->json([
+            'message' => 'Posisi berhasil diperbarui',
+            'data'    => $job
+        ]);
     }
 
-    // Menghapus lowongan pekerjaan
+    // DELETE: Hapus data
     public function destroy($id)
     {
-        $job = JobWork::findOrFail($id);
+        $job = JobWork::find($id);
+        if (!$job) return response()->json(['message' => 'Not found'], 404);
+
         $job->delete();
-        return response()->json(null, 204);
+
+        return response()->json(['message' => 'Posisi berhasil dihapus']);
     }
 }

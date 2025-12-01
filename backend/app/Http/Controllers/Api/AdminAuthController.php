@@ -18,6 +18,7 @@ class AdminAuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|unique:admins,email',
             'password' => 'required|string|min:6|confirmed',
+            'role' => 'required|in:super_admin,admin_konten',
         ]);
 
         if ($validator->fails()) {
@@ -31,6 +32,7 @@ class AdminAuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
         $token = $admin->createToken('admin_token')->plainTextToken;
@@ -76,6 +78,7 @@ class AdminAuthController extends Controller
                 'id' => $admin->id,
                 'name' => $admin->name,
                 'email' => $admin->email,
+                'role' => $admin->role,
                 'avatar' => $admin->avatar ? asset('storage/' . $admin->avatar) : null,
             ],
             'token' => $token
