@@ -14,6 +14,8 @@ class DatabaseSeeder extends Seeder
         // Panggil AdminSeeder untuk membuat akun Super Admin & Admin Konten
         $this->call([
             AdminSeeder::class,
+            CategorySeeder::class,
+            JobSeeder::class,
         ]);
 
         // Opsional: Jika nanti butuh data dummy untuk Customer (User biasa)

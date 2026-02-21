@@ -2,7 +2,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom"; // Import Portal
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "import.meta.env.VITE_API_URL";
 
 const DeleteModal = ({ isOpen, onClose, onSuccess, dataToDelete }) => {
   const [loading, setLoading] = useState(false);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { HSStaticMethods } from "preline";
+// import { HSStaticMethods } from "preline";
 
 import PreLoader from "./components/PreLoader";
 import LandingContent from "./components/LandingContent";
@@ -9,36 +9,50 @@ function App() {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
-  // Efek 1: Loading Screen
+  /* ========================================================
+      LOADING SCREEN (0.5 detik - dipercepat)
+  ======================================================== */
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 2000); // 2-3 detik
+    const timer = setTimeout(() => setLoading(false), 500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Efek 2: Inisialisasi Preline UI agar interaksi JS jalan
+  /* ========================================================
+      LOAD PRELINE JS
+  ======================================================== */
   useEffect(() => {
-    import("preline/preline");
+    // supaya preline tidak crash jika diimport berkali-kali
+    let isMounted = true;
+
+    import("preline/preline").then(() => {
+      if (isMounted && typeof window.HSStaticMethods !== "undefined") {
+        window.HSStaticMethods.autoInit();
+      }
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  /* ========================================================
+      RE-INIT PRELINE SETIAP PINDAH ROUTE
+  ======================================================== */
   useEffect(() => {
-    setTimeout(() => {
-      HSStaticMethods.autoInit();
+    const timer = setTimeout(() => {
+      try {
+        if (typeof window.HSStaticMethods !== "undefined") {
+          window.HSStaticMethods.autoInit();
+        }
+      } catch (e) {
+        console.warn("Preline init skipped:", e);
+      }
     }, 100);
+
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
-  return (
-    <>
-      {loading ? (
-        <div className="flex justify-center items-center h-screen bg-[#1E222A]">
-          <PreLoader />
-        </div>
-      ) : (
-        <LandingContent />
-      )}
-    </>
-  );
+  return <LandingContent />;
 }
 
 export default App;

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || "http://127.0.0.1:8000";
 
 const PLATFORMS = [
     { key: "linkedin", label: "LinkedIn", icon: "ri-linkedin-box-fill", iconClass: "text-lime-500", labelClass: "text-lime-500" },

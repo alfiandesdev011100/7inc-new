@@ -14,7 +14,7 @@ const Footer = () => {
     useEffect(() => {
         const fetchLinks = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/social-links");
+                const res = await axios.get("import.meta.env.VITE_API_URL/social-links");
                 const links = res.data.reduce((acc, link) => {
                     acc[link.platform] = link.url;
                     return acc;

@@ -3,8 +3,9 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import AdminLayout from "../layouts/AdminLayout";
+import SectionArticlesManager from "../components/SectionArticlesManager";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "import.meta.env.VITE_API_URL";
 
 function AlertBridge({ autoCloseMs = 2500, position = "top-center" }) {
     const [msg, setMsg] = useState(null);
@@ -429,6 +430,12 @@ export default function EditBisnisKami() {
                         </div>
                     </section>
                 ))}
+
+                {/* Section Drafts & Articles */}
+                <SectionArticlesManager
+                    targetPage="bisnis-kami"
+                    title="Daftar Artikel Section Bisnis Kami"
+                />
             </div>
         </AdminLayout>
     );

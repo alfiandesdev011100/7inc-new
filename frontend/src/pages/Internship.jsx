@@ -2,6 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
+import axios from "axios";
+import PublicAuthModal from "../components/PublicAuthModal";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 
 const positions = [
     { name: "Administrasi", image: "/assets/img/vector1.png" },
@@ -46,6 +50,29 @@ const Internship = () => {
     const [startIndex, setStartIndex] = useState(0);
     const isFirst = startIndex === 0;
     const isLast = startIndex + VISIBLE >= CardArray.length;
+    const [showModal, setShowModal] = useState(false);
+    const [modalView, setModalView] = useState("register");
+
+    const [dynamicPositions, setDynamicPositions] = useState([]);
+    const [loadingPositions, setLoadingPositions] = useState(true);
+
+    const fetchInternships = async () => {
+        setLoadingPositions(true);
+        try {
+            const res = await axios.get(`${API_BASE}/internships?active_only=true`);
+            setDynamicPositions(res.data.data || []);
+        } catch (error) {
+            console.error("Error fetching internships:", error);
+        } finally {
+            setLoadingPositions(false);
+        }
+    };
+
+    // Pengecekan auth dipindah ke dalam fungsi handleApplyClick agar selalu fresh dari localStorage
+
+    useEffect(() => {
+        fetchInternships();
+    }, []);
 
     // auto-slide + pause
     const [paused, setPaused] = useState(false);
@@ -94,9 +121,31 @@ const Internship = () => {
     const baseTranslate = -(startIndex * (CARD_W + CARD_GAP));
     const trackTranslate = isDragging ? baseTranslate + dragX : baseTranslate;
 
+    const handleApplyClick = (e) => {
+        e.preventDefault();
+
+        // Cek token secara fresh dan ketat
+        const token = localStorage.getItem("publicToken");
+        const isActuallyAuthenticated = token && token !== "undefined" && token !== "null" && token.length > 20;
+
+        if (isActuallyAuthenticated) {
+            confirmApplication();
+        } else {
+            // Jika tidak valid atau sudah logout, bersihkan & tampilkan modal register
+            if (token) localStorage.removeItem("publicToken");
+            setModalView("register");
+            setShowModal(true);
+        }
+    };
+
+    const confirmApplication = () => {
+        window.open("https://docs.google.com/forms/d/1SkaS-5FX9mx3qFLJHB1acJepUXkUisky-v1THo1R0Hs/viewform", "_blank");
+        setShowModal(false);
+    };
+
     return (
         <Layout>
-            <div className="bg-white text-gray-800 pt-[130px] pb-24">
+            <div className="bg-white text-gray-800 pt-[130px] pb-24 relative">
                 <Container>
                     {/* Hero */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -109,7 +158,7 @@ const Internship = () => {
                         <div className="w-full flex justify-end">
                             <img
                                 src="/assets/img/Internship.png"
-                                alt="Lowongan Kerja"
+                                alt="Internship Hero"
                                 className="max-w-[679px] h-[453px] w-full object-cover"
                             />
                         </div>
@@ -208,7 +257,6 @@ const Internship = () => {
                                 </div>
                             </div>
                         </div>
-                        {/* end kanan */}
                     </div>
 
                     {/* Syarat & Ketentuan */}
@@ -245,23 +293,46 @@ const Internship = () => {
                         pengalaman di lingkungan<br />industri multisektor.
                     </p>
 
-                    {/* Grid 18 posisi */}
-                    <div className="mt-12 grid grid-cols-6 gap-14">
-                        {positions.map((item, index) => (
-                            <div
-                                key={index}
-                                className="h-[137px] flex flex-col items-center justify-center bg-white rounded-lg shadow border border-gray-200 w-full group transition-all duration-300 hover:bg-red-500"
-                            >
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-10 h-10 mb-2 transition-all duration-300 group-hover:brightness-0 group-hover:invert"
-                                />
-                                <p className="text-sm font-semibold text-gray-800 text-center px-2 transition-all duration-300 group-hover:text-white">
-                                    {item.name}
-                                </p>
+                    <div className="mt-12 grid grid-cols-2 md:grid-cols-6 gap-6 md:gap-14">
+                        {loadingPositions ? (
+                            <div className="col-span-full text-center py-10">
+                                <span className="loading loading-spinner loading-md text-red-500"></span>
                             </div>
-                        ))}
+                        ) : dynamicPositions.length === 0 ? (
+                            positions.map((item, index) => (
+                                <button
+                                    key={index}
+                                    onClick={handleApplyClick}
+                                    className="h-[137px] flex flex-col items-center justify-center bg-white rounded-lg shadow border border-gray-200 w-full group transition-all duration-300 hover:bg-red-500 cursor-pointer"
+                                >
+                                    <img
+                                        src={item.image}
+                                        alt={item.name}
+                                        className="w-10 h-10 mb-2 transition-all duration-300 group-hover:brightness-0 group-hover:invert"
+                                    />
+                                    <p className="text-sm font-semibold text-gray-800 text-center px-2 transition-all duration-300 group-hover:text-white">
+                                        {item.name}
+                                    </p>
+                                </button>
+                            ))
+                        ) : (
+                            dynamicPositions.map((item, index) => (
+                                <button
+                                    key={item.id}
+                                    onClick={handleApplyClick}
+                                    className="h-[137px] flex flex-col items-center justify-center bg-white rounded-lg shadow border border-gray-200 w-full group transition-all duration-300 hover:bg-red-500 cursor-pointer"
+                                >
+                                    <img
+                                        src={item.image || "/assets/img/vector13.png"}
+                                        alt={item.title}
+                                        className="w-10 h-10 mb-2 transition-all duration-300 group-hover:brightness-0 group-hover:invert object-contain"
+                                    />
+                                    <p className="text-sm font-semibold text-gray-800 text-center px-2 transition-all duration-300 group-hover:text-white">
+                                        {item.title}
+                                    </p>
+                                </button>
+                            ))
+                        )}
                     </div>
 
                     {/* Fasilitas */}
@@ -300,20 +371,17 @@ const Internship = () => {
                             alt="Chevron Arrows"
                             className="absolute right-0 top-0 translate-x-[40px] w-[670px] h-full object-cover z-10"
                             draggable={false}
-                            data-aos="fade-left" data-aos-duration="1000" data-aos-once="true"
                         />
                         <div className="absolute top-1/2 left-[100px] -translate-y-1/2 z-20 text-white">
-                            <p className="uppercase tracking-[0.4em] text-[20px] font-medium mb-4" data-aos="fade-up" data-aos-duration="1000" data-aos-once="true">
+                            <p className="uppercase tracking-[0.4em] text-[20px] font-medium mb-4">
                                 Bergabunglah Sekarang
                             </p>
-                            <h2 className="text-white font-bold text-[20px] md:text-[32px] mb-6" data-aos="fade-up" data-aos-duration="1000" data-aos-once="true">
+                            <h2 className="text-white font-bold text-[20px] md:text-[32px] mb-6">
                                 Kesempatan Berkembang<br />Bersama Seven INC.
                             </h2>
                             <button
-                                className="relative overflow-hidden group rounded-4xl font-medium tracking-[0.05em] text-[20px] w-[220px] h-[60px] bg-white text-black transition-all duration-300 cursor-pointer border border-transparent"
-                                data-aos="fade-up"
-                                data-aos-duration="1000"
-                                data-aos-once="true"
+                                onClick={handleApplyClick}
+                                className="relative overflow-hidden group rounded-4xl font-medium tracking-[0.05em] text-[20px] w-[220px] h-[60px] bg-white text-black transition-all duration-300 cursor-pointer border border-transparent block"
                             >
                                 <span className="absolute inset-0 bg-[#D43026] rounded-4xl translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-400 ease-in-out z-0" />
                                 <span className="relative z-10 flex items-center justify-center h-full w-full group-hover:text-white transition-colors duration-300">
@@ -328,10 +396,17 @@ const Internship = () => {
                         alt="Business Person"
                         className="absolute right-[49px] bottom-10 w-[440px] z-20"
                         draggable={false}
-                        data-aos="fade-left" data-aos-duration="1000" data-aos-once="true"
                     />
                 </div>
             </Container>
+
+            {/* 🔹 Application Confirmation Modal */}
+            <PublicAuthModal
+                isOpen={showModal}
+                onClose={() => setShowModal(false)}
+                onAuthenticated={confirmApplication}
+                initialView={modalView}
+            />
 
             <Footer />
         </Layout>

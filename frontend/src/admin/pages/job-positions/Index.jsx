@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 import AdminLayout from "../../layouts/AdminLayout";
 import JobFormModal from "./components/JobFormModal";
 import RequirementsModal from "./components/RequirementsModal";
@@ -24,7 +27,7 @@ const JobPositionsIndex = () => {
     try {
       // Pastikan URL API backend sudah benar
       const res = await axios.get(
-        `http://127.0.0.1:8000/api/job-works?page=${currentPage}`
+        `${API_BASE}/job-works?page=${currentPage}`
       );
 
       // Logika Pagination Laravel
@@ -54,9 +57,12 @@ const JobPositionsIndex = () => {
     setIsFormOpen(true);
   };
 
+  const navigate = useNavigate();
+
+  // ...
+
   const handleManageReq = (item) => {
-    setSelectedItem(item);
-    setIsReqOpen(true);
+    navigate("/admin/syarat-loker", { state: { job: item } });
   };
 
   const handleDelete = (item) => {
@@ -99,6 +105,7 @@ const JobPositionsIndex = () => {
                   <th>Posisi / Judul</th>
                   <th>Perusahaan & Lokasi</th>
                   <th>Deadline</th>
+                  <th className="text-center">Status</th>
                   <th className="text-center">Persyaratan</th>
                   <th className="text-center">Aksi</th>
                 </tr>
@@ -120,6 +127,11 @@ const JobPositionsIndex = () => {
                       <span className="badge badge-ghost text-xs whitespace-nowrap">
                         {item.close_date}
                       </span>
+                    </td>
+                    <td className="text-center">
+                      <div className={`badge ${item.is_active ? 'badge-success text-white' : 'badge-ghost text-gray-400'} text-xs`}>
+                        {item.is_active ? 'Aktif' : 'Non-Aktif'}
+                      </div>
                     </td>
                     <td className="text-center">
                       <button

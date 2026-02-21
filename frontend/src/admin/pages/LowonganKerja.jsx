@@ -1,12 +1,12 @@
 // LowonganKerja.jsx
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Layout from "../components/Layout";
+import AdminLayout from "../layouts/AdminLayout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
 
 // === KONFIG API (Hero Lowongan Kerja)
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "import.meta.env.VITE_API_URL";
 const ENDPOINT_WORKS_LATEST = `${API_BASE}/works/latest`;
 const ENDPOINT_JOBS = `${API_BASE}/job-works`;
 
@@ -219,8 +219,8 @@ const LowonganKerja = () => {
     const trackTranslate = isDragging ? baseTranslate + dragX : baseTranslate;
 
     return (
-        <Layout>
-            <div className="bg-white text-gray-800 pt-[130px] pb-24">
+        <AdminLayout>
+            <div className="bg-white text-gray-800 pt-[30px] pb-24">
                 <Container>
                     {/* Tahan render hero hingga fetch selesai untuk cegah kedipan */}
                     {!loaded ? (
@@ -425,7 +425,7 @@ const LowonganKerja = () => {
             </div>
 
             <Footer />
-        </Layout>
+        </AdminLayout>
     );
 };
 

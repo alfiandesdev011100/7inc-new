@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Traits\Loggable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class JobWork extends Model
 {
-    use HasFactory;
+    use HasFactory, Loggable, SoftDeletes;
 
     protected $table = 'job_works';
 
@@ -15,6 +17,7 @@ class JobWork extends Model
         'title',
         'company',
         'location',
-        'close_date'
+        'close_date',
+        'is_active',
     ];
 }

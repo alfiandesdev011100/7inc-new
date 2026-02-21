@@ -31,7 +31,7 @@ const TentangKami = () => {
         let alive = true;
         const getAbout = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/about", {
+                const res = await axios.get("import.meta.env.VITE_API_URL/about", {
                     headers: { Accept: "application/json" },
                 });
                 const data = res.data?.data;

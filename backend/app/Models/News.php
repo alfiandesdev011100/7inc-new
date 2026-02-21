@@ -3,18 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
+use App\Traits\Loggable;
 
 class News extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Loggable;
 
     protected $table = 'news';
 
     protected $fillable = [
-        'title', 'slug', 'excerpt', 'body', 'cover_path',
-        'is_published', 'published_at', 'author',
+        'title', 
+        'slug', 
+        'excerpt', 
+        'body', 
+        'cover_path',
+        'is_published', 
+        'published_at', 
+        'author',
+        'category_id', // ⬅️ tambahkan agar bisa mass assign
     ];
 
     protected $casts = [
@@ -23,6 +29,12 @@ class News extends Model
     ];
 
     protected $appends = ['cover_url'];
+
+    // ===== RELATIONS =====
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
 
     // ===== Accessors =====
     public function getCoverUrlAttribute(): ?string

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../layouts/AdminLayout";
+import SectionArticlesManager from "../components/SectionArticlesManager";
 
 const SUB_MAX = 100;
 const HEAD_MAX = 255;
@@ -33,7 +34,7 @@ const AdminEditTentangKami = () => {
     useEffect(() => {
         const fetchAbout = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/about", {
+                const res = await axios.get("import.meta.env.VITE_API_URL/about", {
                     headers: { Accept: "application/json" },
                 });
                 const data = res.data?.data;
@@ -89,7 +90,7 @@ const AdminEditTentangKami = () => {
             if (file) form.append("image", file);
 
             const token = localStorage.getItem("adminToken");
-            const res = await axios.post("http://127.0.0.1:8000/api/admin/about", form, {
+            const res = await axios.post("import.meta.env.VITE_API_URL/admin/about", form, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -167,7 +168,7 @@ const AdminEditTentangKami = () => {
             setParaSaving(true);
             const token = localStorage.getItem("adminToken");
             const res = await axios.post(
-                "http://127.0.0.1:8000/api/admin/about/paragraph",
+                "import.meta.env.VITE_API_URL/admin/about/paragraph",
                 { side, slot: pSlot, content: pContent },
                 { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
             );
@@ -192,7 +193,7 @@ const AdminEditTentangKami = () => {
             setPContent(content);
             const token = localStorage.getItem("adminToken");
             const res = await axios.post(
-                "http://127.0.0.1:8000/api/admin/about/paragraph",
+                "import.meta.env.VITE_API_URL/admin/about/paragraph",
                 { side, slot: pSlot, content },
                 { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
             );
@@ -256,7 +257,7 @@ const AdminEditTentangKami = () => {
             setCoreSaving(true);
             const token = localStorage.getItem("adminToken");
             const res = await axios.post(
-                "http://127.0.0.1:8000/api/admin/about/core-text",
+                "import.meta.env.VITE_API_URL/admin/about/core-text",
                 { field: coreField, content: coreContent },
                 { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
             );
@@ -280,7 +281,7 @@ const AdminEditTentangKami = () => {
             setCoreContent(content);
             const token = localStorage.getItem("adminToken");
             const res = await axios.post(
-                "http://127.0.0.1:8000/api/admin/about/core-text",
+                "import.meta.env.VITE_API_URL/admin/about/core-text",
                 { field: coreField, content },
                 { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
             );
@@ -515,7 +516,7 @@ const AdminEditTentangKami = () => {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* ====== Editor Core Value (H2/H3/Paragraf) ====== */}
                 <div className="w-full max-w-3xl mt-8">
                     <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm space-y-6">
@@ -611,6 +612,12 @@ const AdminEditTentangKami = () => {
                         </div>
                     </div>
                 </div>
+
+                {/* Section Drafts & Articles */}
+                <SectionArticlesManager
+                    targetPage="about"
+                    title="Daftar Artikel Section Tentang Kami"
+                />
             </div>
         </AdminLayout>
     );

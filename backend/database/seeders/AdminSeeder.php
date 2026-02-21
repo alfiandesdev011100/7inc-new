@@ -13,22 +13,34 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Buat Super Admin (Bisa segalanya)
-        Admin::create([
-            'name' => 'Super Administrator',
-            'email' => 'super@seveninc.com',
-            'password' => Hash::make('password123'), // Ganti password yang kuat nanti
-            'role' => 'super_admin',
-            'avatar' => null,
-        ]);
+        // 1. Super Admin
+        Admin::updateOrCreate(
+            ['email' => 'admin@seveninc.com'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password123'),
+                'role' => Admin::ROLE_ADMIN,
+            ]
+        );
 
-        // 2. Buat Admin Konten (Hanya bisa edit berita/loker)
-        Admin::create([
-            'name' => 'Content Writer',
-            'email' => 'writer@seveninc.com',
-            'password' => Hash::make('password123'),
-            'role' => 'admin_konten',
-            'avatar' => null,
-        ]);
+        // 2. Editor / Reviewer
+        Admin::updateOrCreate(
+            ['email' => 'reviewer@seveninc.com'],
+            [
+                'name' => 'Reviewer Editor',
+                'password' => Hash::make('password123'),
+                'role' => Admin::ROLE_REVIEWER,
+            ]
+        );
+
+        // 3. Content Writer
+        Admin::updateOrCreate(
+            ['email' => 'writer@seveninc.com'],
+            [
+                'name' => 'Content Writer',
+                'password' => Hash::make('password123'),
+                'role' => Admin::ROLE_WRITER,
+            ]
+        );
     }
 }

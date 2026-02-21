@@ -10,9 +10,16 @@ use Illuminate\Http\Request;
 class JobWorksController extends Controller
 {
     // GET: Ambil semua data
-    public function index()
+    public function index(Request $request)
     {
-        $jobs = JobWork::latest()->paginate(10);
+        $query = JobWork::latest();
+
+        // Jika ada parameter ?active_only=true (untuk public page)
+        if ($request->has('active_only') && $request->active_only == 'true') {
+            $query->where('is_active', true);
+        }
+
+        $jobs = $query->paginate(10);
         return response()->json($jobs);
     }
 
@@ -24,6 +31,7 @@ class JobWorksController extends Controller
             'company'    => 'required|string|max:255',
             'location'   => 'required|string|max:255',
             'close_date' => 'required|date',
+            'is_active'  => 'boolean'
         ]);
 
         $job = JobWork::create($validated);
@@ -53,6 +61,7 @@ class JobWorksController extends Controller
             'company'    => 'required|string|max:255',
             'location'   => 'required|string|max:255',
             'close_date' => 'required|date',
+            'is_active'  => 'boolean'
         ]);
 
         $job->update($validated);

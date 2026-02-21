@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom"; // Import Portal
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "import.meta.env.VITE_API_URL";
 
 const JobFormModal = ({ isOpen, onClose, onSuccess, dataToEdit }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +10,7 @@ const JobFormModal = ({ isOpen, onClose, onSuccess, dataToEdit }) => {
     company: "",
     location: "",
     close_date: "",
+    is_active: true,
   });
   const [loading, setLoading] = useState(false);
 
@@ -22,10 +23,11 @@ const JobFormModal = ({ isOpen, onClose, onSuccess, dataToEdit }) => {
           company: dataToEdit.company,
           location: dataToEdit.location,
           close_date: dataToEdit.close_date,
+          is_active: dataToEdit.is_active === 1 || dataToEdit.is_active === true,
         });
       } else {
         // Reset form jika mode tambah baru
-        setFormData({ title: "", company: "", location: "", close_date: "" });
+        setFormData({ title: "", company: "", location: "", close_date: "", is_active: true });
       }
     }
   }, [isOpen, dataToEdit]);
@@ -145,6 +147,22 @@ const JobFormModal = ({ isOpen, onClose, onSuccess, dataToEdit }) => {
                 setFormData({ ...formData, close_date: e.target.value })
               }
             />
+          </div>
+
+          {/* Status Toggle */}
+          <div className="form-control">
+            <label className="label cursor-pointer justify-start gap-4">
+              <span className="label-text font-medium text-gray-700">Status Aktif</span>
+              <input
+                type="checkbox"
+                className="toggle toggle-success"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+              />
+            </label>
+            <span className="text-xs text-gray-500 mt-1">
+              Jika tidak aktif, lowongan tidak akan muncul di halaman publik.
+            </span>
           </div>
 
           {/* Tombol Aksi */}

@@ -45,7 +45,7 @@ const Profil = () => {
                 formData.append("avatar", file);
 
                 const res = await axios.post(
-                    "http://127.0.0.1:8000/api/admin/update-avatar",
+                    "import.meta.env.VITE_API_URL/admin/update-avatar",
                     formData,
                     {
                         headers: {
@@ -63,7 +63,7 @@ const Profil = () => {
             // Jika nama diubah → update nama di backend
             if (username !== initialUsername) {
                 await axios.post(
-                    "http://127.0.0.1:8000/api/admin/update-profile",
+                    "import.meta.env.VITE_API_URL/admin/update-profile",
                     { name: username },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );

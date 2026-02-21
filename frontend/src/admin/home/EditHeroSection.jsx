@@ -2,8 +2,9 @@
 import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import AdminLayout from "../layouts/AdminLayout";
+import SectionArticlesManager from "../components/SectionArticlesManager";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "import.meta.env.VITE_API_URL";
 
 const EditHeroSection = () => {
     // ====== States utama ======
@@ -353,6 +354,12 @@ const EditHeroSection = () => {
 
                     {currentId && <span className="text-xs text-gray-400 ml-2">ID: {currentId}</span>}
                 </div>
+
+                {/* Section Drafts & Articles */}
+                <SectionArticlesManager
+                    targetPage="home"
+                    title="Daftar Artikel Section Beranda"
+                />
             </div>
         </AdminLayout>
     );

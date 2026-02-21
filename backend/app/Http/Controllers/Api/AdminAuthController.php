@@ -11,14 +11,13 @@ use App\Models\Admin;
 
 class AdminAuthController extends Controller
 {
-    // Fungsi Register Admin
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:admins,email',
+            'email' => 'required|string|email|unique:admins,email|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|in:super_admin,admin_konten',
+            'role' => 'required|in:admin,writer,reviewer',
         ]);
 
         if ($validator->fails()) {
@@ -35,17 +34,20 @@ class AdminAuthController extends Controller
             'role' => $request->role,
         ]);
 
-        $token = $admin->createToken('admin_token')->plainTextToken;
-
         return response()->json([
             'status' => true,
             'message' => 'Admin berhasil terdaftar',
-            'admin' => $admin,
-            'token' => $token
+            'data' => [
+                'user' => [
+                    'id' => $admin->id,
+                    'name' => $admin->name,
+                    'email' => $admin->email,
+                    'role' => $admin->role,
+                ]
+            ]
         ], 201);
     }
 
-    // Fungsi Login Admin
     public function login(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -85,7 +87,6 @@ class AdminAuthController extends Controller
         ], 200);
     }
 
-    // Edit Profil
     public function updateAvatar(Request $request)
     {
         $request->validate([
@@ -112,7 +113,6 @@ class AdminAuthController extends Controller
         ]);
     }
 
-    // Fungsi Update Nama Admin
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -130,7 +130,9 @@ class AdminAuthController extends Controller
         ], 200);
     }
 
-    // 🔹 Fungsi Logout Admin
+    /**
+     * Logout Admin.
+     */
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();

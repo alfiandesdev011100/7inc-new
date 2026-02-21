@@ -21,9 +21,9 @@ const Footer = () => {
 
                     {/* Icon Sosmed */}
                     <div className="flex space-x-4 text-[35px]">
-                        <i class="ri-linkedin-box-fill cursor-pointer"></i>
-                        <i class="ri-instagram-line cursor-pointer"></i>
-                        <i class="ri-facebook-circle-fill cursor-pointer"></i>
+                        <i className="ri-linkedin-box-fill cursor-pointer"></i>
+                        <i className="ri-instagram-line cursor-pointer"></i>
+                        <i className="ri-facebook-circle-fill cursor-pointer"></i>
                         <i className="ri-twitter-x-fill cursor-pointer"></i>
                     </div>
                 </div>
@@ -37,7 +37,7 @@ const Footer = () => {
                     <div>
                         <h3 className="text-[30px] font-bold mb-3">Kantor Pusat</h3>
                         <p className="flex items-start space-x-2">
-                            <i class="ri-map-pin-line text-[25px]"></i>
+                            <i className="ri-map-pin-line text-[25px]"></i>
                             <span className="text-[16px]">
                                 Jl. Raya Janti Gg. Harjuna No.59,
                                 Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul,
@@ -76,7 +76,7 @@ const Footer = () => {
                                 </Link>
                             </li>
                             <li>
-                                <Link to="/admin-login" onClick={scrollTop} className="hover:text-[#DC3933] cursor-pointer">
+                                <Link to="/admin/login" onClick={scrollTop} className="hover:text-[#DC3933] cursor-pointer">
                                     Login Admin
                                 </Link>
                             </li>
@@ -126,11 +126,11 @@ const Footer = () => {
                     <div>
                         <h3 className="text-[30px] font-bold mb-3 ml-3">Hubungi CS Kami</h3>
                         <p className="flex items-center space-x-2 mb-4 ml-2">
-                            <img src="/assets/img/vectorPhone.png" className="h-6"></img>
+                            <i className="ri-phone-line text-[25px]"></i>
                             <span className="text-[16px] px-2">089633040200</span>
                         </p>
                         <p className="flex items-center space-x-2 ml-2">
-                            <img src="/assets/img/vectorEmail.png" className="h-5"></img>
+                            <i className="ri-mail-line text-[25px]"></i>
                             <span className="text-[16px] px-2">sevenincjogja@gmail.com</span>
                         </p>
                     </div>

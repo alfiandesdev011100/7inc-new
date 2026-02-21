@@ -65,7 +65,7 @@ const Navbar = () => {
         let alive = true;
         const getLogo = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/admin/logo", {
+                const res = await axios.get("import.meta.env.VITE_API_URL/admin/logo", {
                     headers: { Accept: "application/json" },
                 });
                 const url = res?.data?.data?.url || null;
@@ -90,7 +90,7 @@ const Navbar = () => {
         try {
             const token = localStorage.getItem("adminToken");
             await axios.post(
-                "http://127.0.0.1:8000/api/admin/logout",
+                "import.meta.env.VITE_API_URL/admin/logout",
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );

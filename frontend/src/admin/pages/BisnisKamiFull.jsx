@@ -5,7 +5,7 @@ import Layout from "../components/Layout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "import.meta.env.VITE_API_URL";
 
 const BisnisKamiFull = () => {
     const location = useLocation();

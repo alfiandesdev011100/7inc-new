@@ -11,7 +11,7 @@ const TentangKami = () => {
     useEffect(() => {
         const fetchAboutData = async () => {
             try {
-                const response = await axios.get("http://127.0.0.1:8000/api/about", {
+                const response = await axios.get("import.meta.env.VITE_API_URL/about", {
                     headers: { Accept: "application/json" },
                 });
                 setAbout(response.data?.data);

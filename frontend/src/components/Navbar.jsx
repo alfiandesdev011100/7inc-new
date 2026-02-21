@@ -54,7 +54,7 @@ const Navbar = () => {
 
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/admin/logo");
+                const res = await axios.get("import.meta.env.VITE_API_URL/admin/logo");
                 const url = res?.data?.data?.url || null;
                 if (!cancelled && url) {
                     setLogoUrl((prev) => {

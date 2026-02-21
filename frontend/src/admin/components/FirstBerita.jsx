@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Container from "./Container";
 
-const API_BASE = import.meta.env.VITE_API_BASE || "http://127.0.0.1:8000/api";
+const API_BASE = import.meta.env.VITE_API_BASE || "import.meta.env.VITE_API_URL";
 
 // --- Fallback dummy bila belum ada berita publish / error jaringan ---
 const DUMMY_LIST = [

@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+
+const API_BASE = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "http://localhost:8000/api";
 import Layout from "../components/Layout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
@@ -31,6 +34,25 @@ const LowonganKerja = () => {
     const navigate = useNavigate();
 
     //Auto-slide dan pause on hover/drag (wrap ke awal saat mencapai akhir)
+    const [jobs, setJobs] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchJobs = async () => {
+        setLoading(true);
+        try {
+            const res = await axios.get(`${API_BASE}/job-works?active_only=true&limit=3`);
+            setJobs(res.data.data || []);
+        } catch (error) {
+            console.error("Error fetching jobs:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchJobs();
+    }, []);
+
     const [paused, setPaused] = useState(false);
     useEffect(() => {
         if (paused) return;
@@ -222,64 +244,47 @@ const LowonganKerja = () => {
                         </div>
 
                         {/* Data Lowongan */}
-                        {[
-                            {
-                                title: "Staff Human Resources Development (HRD)",
-                                company: "Seven INC",
-                                location: "Bantul, Kabupaten Bantul, Daerah Istimewa Yogyakarta",
-                                closeDate: "30 Juni 2025",
-                            },
-                            {
-                                title: "Staff Human Resources Development (HRD)",
-                                company: "Seven INC",
-                                location: "Bantul, Kabupaten Bantul, Daerah Istimewa Yogyakarta",
-                                closeDate: "30 Juni 2025",
-                            },
-                            {
-                                title: "Staff Human Resources Development (HRD)",
-                                company: "Seven INC",
-                                location: "Bantul, Kabupaten Bantul, Daerah Istimewa Yogyakarta",
-                                closeDate: "30 Juni 2025",
-                            },
-                        ].map((job, index) => (
-                            <div key={index} className="w-full mb-[48px]">
-                                {/* Bagian Atas */}
-                                <div className="border border-gray-300 rounded-t-xl px-14 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                    <div>
-                                        <h3 className="text-[24px] font-bold text-gray-900">{job.title}</h3>
-                                        <p className="text-[16px] text-[#7B7B7B]">{job.company}</p>
-                                    </div>
-                                    <button
-                                        onClick={() => handleSeeDetail(job)}
-                                        className="bg-[#DC3933] text-white rounded-full border border-[#e5e7eb] hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
-                                        style={{ width: "245px", height: "63px" }}
-                                    >
-                                        Selengkapnya
-                                    </button>
-                                </div>
-
-                                {/* Bagian Bawah */}
-                                <div className="border-x border-b border-gray-300 rounded-b-xl px-14 p-1 flex flex-wrap justify-between items-center text-gray-700 text-[16px]">
-                                    {/* Pekerjaan */}
-                                    <div className="flex items-center gap-3 text-[12px] text-[#7B7B7B]">
-                                        <img src="/assets/img/bagComponen.png" alt="bag-icon" />
-                                        <span>{job.title}</span>
-                                    </div>
-
-                                    {/* Lokasi */}
-                                    <div className="flex items-center gap-2 text-[12px] text-[#7B7B7B]">
-                                        <i className="ri-map-pin-line text-[24px]"></i>
-                                        <span>{job.location}</span>
-                                    </div>
-
-                                    {/* Tanggal */}
-                                    <div className="flex items-center gap-2 text-[12px] text-[#7B7B7B]">
-                                        <i className="ri-time-line text-[24px]"></i>
-                                        <span>Close Date : {job.closeDate}</span>
-                                    </div>
-                                </div>
+                        {loading ? (
+                            <div className="text-center py-10">
+                                <span className="loading loading-spinner loading-md text-red-500"></span>
                             </div>
-                        ))}
+                        ) : jobs.length === 0 ? (
+                            <div className="text-center py-10 text-gray-500 font-bold">
+                                Belum ada lowongan yang tersedia.
+                            </div>
+                        ) : (
+                            jobs.map((job, index) => (
+                                <div key={job.id || index} className="w-full mb-[48px]">
+                                    <div className="border border-gray-300 rounded-t-xl px-14 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                        <div>
+                                            <h3 className="text-[24px] font-bold text-gray-900">{job.title}</h3>
+                                            <p className="text-[16px] text-[#7B7B7B]">{job.company}</p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleSeeDetail(job)}
+                                            className="bg-[#DC3933] text-white rounded-full border border-[#e5e7eb] hover:bg-white hover:text-black transition-all duration-300 cursor-pointer"
+                                            style={{ width: "245px", height: "63px" }}
+                                        >
+                                            Selengkapnya
+                                        </button>
+                                    </div>
+                                    <div className="border-x border-b border-gray-300 rounded-b-xl px-14 p-1 flex flex-wrap justify-between items-center text-gray-700 text-[16px]">
+                                        <div className="flex items-center gap-3 text-[12px] text-[#7B7B7B]">
+                                            <img src="/assets/img/bagComponen.png" alt="bag-icon" />
+                                            <span>{job.title}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[12px] text-[#7B7B7B]">
+                                            <i className="ri-map-pin-line text-[24px]"></i>
+                                            <span>{job.location}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-[12px] text-[#7B7B7B]">
+                                            <i className="ri-time-line text-[24px]"></i>
+                                            <span>Close Date : {job.close_date || job.closeDate}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        )}
 
                         {/* Tombol Lihat Lebih Lanjut */}
                         <div className="flex justify-center">

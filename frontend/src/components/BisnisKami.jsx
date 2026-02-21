@@ -1,5 +1,7 @@
-import Container from './Container';
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Container from './Container';
 
 const businessLines = [
     {
@@ -41,6 +43,13 @@ const anchorMap = {
 };
 
 const BisnisKami = () => {
+    const [settings, setSettings] = useState(null);
+
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_BASE || 'import.meta.env.VITE_API_URL'}/home-settings`)
+            .then(res => setSettings(res.data))
+            .catch(() => { });
+    }, []);
     return (
         <section className="w-full bg-white mt-[85px]">
             <Container>
@@ -152,8 +161,7 @@ const BisnisKami = () => {
                                 data-aos-duration="1000"
                                 data-aos-once="true"
                             >
-                                Kesempatan Berkembang<br />
-                                Bersama Seven INC.
+                                {settings?.join_title || <>Kesempatan Berkembang<br />Bersama Seven INC.</>}
                             </h2>
 
                             <button
@@ -164,7 +172,7 @@ const BisnisKami = () => {
                             >
                                 <span className="absolute inset-0 bg-[#D43026] rounded-4xl translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-400 ease-in-out z-0" />
                                 <span className="relative z-10 flex items-center justify-center h-full w-full group-hover:text-white transition-colors duration-300">
-                                    Daftar Sekarang
+                                    {settings?.join_button_text || "Daftar Sekarang"}
                                 </span>
                             </button>
                         </div>
@@ -172,7 +180,7 @@ const BisnisKami = () => {
 
                     {/* Gambar Orang */}
                     <img
-                        src="/assets/img/Hero2.png"
+                        src={settings?.join_image_url || "/assets/img/Hero2.png"}
                         alt="Business Person"
                         className="absolute right-[49px] bottom-10 w-[440px] z-20"
                         draggable={false}

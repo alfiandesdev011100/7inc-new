@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Loggable;
 
 class About extends Model
 {
+    use Loggable;
     protected $fillable = [
         'subtitle',
         'headline',

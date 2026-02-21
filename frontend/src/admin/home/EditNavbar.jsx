@@ -15,7 +15,7 @@ const EditNavbar = () => {
     useEffect(() => {
         const fetchLogo = async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/admin/logo");
+                const res = await axios.get("import.meta.env.VITE_API_URL/admin/logo");
                 const url = res.data?.data?.url || null;
                 setCurrentLogo(url);
                 if (url) localStorage.setItem("navbarLogoUrl", url); // cache untuk halaman lain
@@ -60,7 +60,7 @@ const EditNavbar = () => {
             form.append("image", file);
 
             const token = localStorage.getItem("adminToken");
-            await axios.post("http://127.0.0.1:8000/api/admin/logo", form, {
+            await axios.post("import.meta.env.VITE_API_URL/admin/logo", form, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data",
@@ -68,7 +68,7 @@ const EditNavbar = () => {
             });
 
             // refresh logo yang tersimpan
-            const res = await axios.get("http://127.0.0.1:8000/api/admin/logo");
+            const res = await axios.get("import.meta.env.VITE_API_URL/admin/logo");
             const url = res.data?.data?.url || null;
             setCurrentLogo(url);
             if (url) localStorage.setItem("navbarLogoUrl", url);

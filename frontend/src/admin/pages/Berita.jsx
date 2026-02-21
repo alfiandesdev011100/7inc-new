@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 import Container from "../components/Container";
 
 // ========= KONFIG =========
-const API_BASE = "http://127.0.0.1:8000/api"; // Laravel API
+const API_BASE = "import.meta.env.VITE_API_URL"; // Laravel API
 const DUMMY_PAGES = 3; // jumlah halaman default saat dummy
 
 // ========= DUMMY (fallback ketika belum ada berita publish) =========

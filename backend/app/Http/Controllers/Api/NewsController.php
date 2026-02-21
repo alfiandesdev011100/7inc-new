@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 
 class NewsController extends Controller
 {
-    // ===== Helpers =====
     private function serialize(?News $n): ?array
     {
         if (!$n) return null;
@@ -36,14 +35,12 @@ class NewsController extends Controller
             : News::where('slug', $idOrSlug)->first();
     }
 
-    // ===== Public Endpoints =====
-
     public function index(Request $request)
     {
         $perPage = (int)($request->integer('per_page') ?: 9);
         $q = trim((string)$request->get('q', ''));
 
-        $base = News::published(); // Hanya yang sudah publish
+        $base = News::published();
 
         if ($q !== '') {
             $base->where('title', 'like', '%' . $q . '%');
@@ -82,9 +79,6 @@ class NewsController extends Controller
         return response()->json(['status' => true, 'data' => $this->serialize($news)], 200);
     }
 
-    // ===== Admin Endpoints (Auth Required) =====
-
-    // [BARU] Untuk tabel di halaman admin (Lihat semua: Draft + Published)
     public function adminIndex(Request $request)
     {
         $perPage = (int)($request->integer('per_page') ?: 10);
@@ -96,7 +90,6 @@ class NewsController extends Controller
             $query->where('title', 'like', '%' . $q . '%');
         }
 
-        // Urutkan dari yang paling baru diupdate
         $query->orderByDesc('updated_at');
 
         $p = $query->paginate($perPage);
@@ -135,7 +128,7 @@ class NewsController extends Controller
             $news->cover_path = $request->file('cover')->store('news', 'public');
         }
 
-        $news->save(); // Slug & Published_at handled by Model Hook
+        $news->save();
 
         return response()->json([
             'status'  => true,

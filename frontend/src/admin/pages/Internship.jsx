@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import Layout from "../components/Layout";
+import AdminLayout from "../layouts/AdminLayout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
 
-const API = "http://127.0.0.1:8000/api";
+const API = "import.meta.env.VITE_API_URL";
 
 // Slider konstanta (Layout 2)
 const AUTO_MS = 5000;
@@ -211,8 +211,8 @@ export default function Internship() {
         ));
 
     return (
-        <Layout>
-            <div className="bg-white text-gray-800 pt-[130px] pb-24">
+        <AdminLayout>
+            <div className="bg-white text-gray-800 pt-[30px] pb-24">
                 <Container>
                     {/* ============== LAYOUT 1: HERO ============== */}
                     <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -313,8 +313,8 @@ export default function Internship() {
                                                         src={card.image_url}
                                                         alt={`Icon ${card.title}`}
                                                         className={`object-contain ${(card.style_type ?? 1) === 2
-                                                                ? "w-[90px] h-[90px] ml-[13px]"
-                                                                : "w-[100px] h-[100px] mt-2"
+                                                            ? "w-[90px] h-[90px] ml-[13px]"
+                                                            : "w-[100px] h-[100px] mt-2"
                                                             } group-hover:invert`}
                                                         loading="lazy"
                                                         decoding="async"
@@ -478,6 +478,6 @@ export default function Internship() {
             </Container>
 
             <Footer />
-        </Layout>
+        </AdminLayout>
     );
 }

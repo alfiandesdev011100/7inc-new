@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import AdminLayout from "../layouts/AdminLayout";
 
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE = "import.meta.env.VITE_API_URL";
 
 // ====== Konstanta untuk SyaratLoker ======
 const TYPES = [

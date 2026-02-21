@@ -1,0 +1,61 @@
+# Root .gitignore for 7inc Project
+
+# Dependencies / Packages
+node_modules/
+vendor/
+backend/vendor/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+
+# Logs and Framework Caches
+*.log
+npm-debug.log*
+yarn-debug.log*
+backend/storage/logs/*.log
+backend/storage/framework/cache/data/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Frontend build outputs
+frontend/dist/
+frontend/build/
+public/build/
+public/hot/
+
+# Backend specific
+backend/public/storage
+backend/storage/*.key
+backend/.phpunit.result.cache
+backend/auth.json
+
+# Misc
+*.zip
+*.rar
+*.7z
+.fleet
+.nova
+.zed

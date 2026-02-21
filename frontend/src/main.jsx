@@ -1,38 +1,52 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./index.css";
-// import "cally"; // Uncomment jika digunakan
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 // --- ADMIN DASHBOARD ---
 import AdminApp from "./admin/AdminApp.jsx";
 
 // --- ADMIN PAGES (OLD STRUCTURE - Masih Dipakai) ---
-// Pastikan folder sudah direname menjadi 'pages' (bukan 'Page')
 import AdminTentangKamiFull from "./admin/pages/TentangKamiFull.jsx";
 import AdminBisnisKamiFull from "./admin/pages/BisnisKamiFull.jsx";
 import AdminKontakFull from "./admin/pages/KontakFull.jsx";
-import AdminLowonganKerja from "./admin/pages/LowonganKerja.jsx"; // Daftar Pelamar
+import AdminLowonganKerja from "./admin/pages/LowonganKerja.jsx";
 import AdminLowonganKerjaFull from "./admin/pages/LowonganKerjaFull.jsx";
 import AdminInternship from "./admin/pages/Internship.jsx";
 import AdminSyaratLoker from "./admin/pages/SyaratLoker.jsx";
-import AdminIsiBerita from "./admin/pages/IsiBerita.jsx"; // Preview isi berita
+import AdminIsiBerita from "./admin/pages/IsiBerita.jsx";
 
 // --- ADMIN SETTINGS & HOME EDITORS ---
 import AdminProfil from "./admin/settings/Profil.jsx";
-import AdminDashboard from "./admin/home/EditNavbar.jsx"; // Edit Navbar & Logo
+import AdminDashboard from "./admin/home/EditNavbar.jsx";
 import AdminEditTentangKami from "./admin/home/EditTentangKami.jsx";
-import AdminEditLowonganKerja from "./admin/home/EditLowonganKerja.jsx"; // Edit Konten Loker
+import AdminEditLowonganKerja from "./admin/home/EditLowonganKerja.jsx";
 import AdminEditBisnisKami from "./admin/home/EditBisnisKami.jsx";
 import AdminLink from "./admin/home/EditLink.jsx";
 import AdminEditInternship from "./admin/home/EditInternship.jsx";
 import AdminEditHeroSection from "./admin/home/EditHeroSection.jsx";
 
-// --- MODULE BARU (REFACTORED - Feature First) ---
+// --- MODULE BARU ---
 import AdminJobPositionsIndex from "./admin/pages/job-positions/Index.jsx";
 import AdminNewsIndex from "./admin/pages/news/Index.jsx";
+import AdminJobApplicationsIndex from "./admin/pages/job-applications/Index.jsx";
+import AdminInternshipApplicationsIndex from "./admin/pages/internship-applications/Index.jsx";
+import AdminContactMessageIndex from "./admin/pages/contacts/Index.jsx";
+import AdminTaskIndex from "./admin/pages/tasks/Index.jsx";
+import HubBeranda from "./admin/pages/hubs/HubBeranda.jsx";
+import HubBerita from "./admin/pages/hubs/HubBerita.jsx";
+import AdminActivityLog from "./admin/pages/activity-log/Index.jsx";
 
-// --- USER (PUBLIC) PAGES ---
+// --- WRITER ROLE COMPONENTS ---
+import WriterLayout from "./writer/layouts/WriterLayout.jsx";
+import WriterDashboard from "./writer/pages/dashboard/Index.jsx";
+import WriterArticlesIndex from "./writer/pages/articles/Index.jsx";
+import WriterArticleForm from "./writer/pages/articles/Form.jsx";
+import WriterTaskIndex from "./writer/pages/tasks/Index.jsx";
+import WriterProfile from "./writer/pages/Profile.jsx";
+
+// --- USER PUBLIC PAGES ---
 import App from "./App.jsx";
 import TentangKamiFull from "./pages/TentangKamiFull.jsx";
 import BisnisKamiFull from "./pages/BisnisKamiFull.jsx";
@@ -46,6 +60,7 @@ import IsiBerita from "./pages/IsiBerita.jsx";
 
 // --- AUTH & SECURITY ---
 import LoginAdmin from "./masuk/LoginAdmin.jsx";
+import Register from "./masuk/Register.jsx";
 import ProtectedRouteAdmin from "./components/ProtectedRouteAdmin.jsx";
 
 // --- PLUGINS ---
@@ -54,225 +69,90 @@ import "animate.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
 
-// Inisialisasi Animation on Scroll
 AOS.init();
+
+/* =======================================================
+   🔥 REDIRECT KHUSUS SETELAH LOGIN
+ ======================================================= */
+
+const RedirectBasedOnRole = () => {
+  const token = localStorage.getItem("adminToken");
+  const adminData = localStorage.getItem("adminData");
+
+  if (!token || !adminData) {
+    return <Navigate to="/admin/login" replace />;
+  }
+
+  const role = JSON.parse(adminData).role;
+
+  if (role === "admin" || role === "super_admin") return <Navigate to="/admin" replace />;
+  if (role === "writer") return <Navigate to="/writer/dashboard" replace />;
+
+  return <Navigate to="/admin/login" replace />;
+};
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* =========================================
-            1. ROUTE PUBLIC (USER / CUSTOMER)
-            Dapat diakses oleh siapa saja tanpa login
-           ========================================= */}
-        <Route path="/" element={<App />} />
-        <Route path="/tentang-kami" element={<TentangKamiFull />} />
-        <Route path="/bisnis-kami" element={<BisnisKamiFull />} />
-        <Route path="/internship" element={<Internship />} />
-        <Route path="/lowongan-kerja" element={<LowonganKerja />} />
-        <Route path="/lowongan-full" element={<LowonganKerjaFull />} />
-        <Route path="/kontak" element={<KontakFull />} />
-        <Route path="/berita" element={<Berita />} />
-        <Route path="/isi-berita" element={<IsiBerita />} />
-        <Route path="/syarat-loker" element={<SyaratLoker />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          {/* ... existing routes ... */}
+          <Route path="/" element={<App />} />
+          <Route path="/tentang-kami" element={<TentangKamiFull />} />
+          <Route path="/bisnis-kami" element={<BisnisKamiFull />} />
+          <Route path="/internship" element={<Internship />} />
+          <Route path="/lowongan-kerja" element={<LowonganKerja />} />
+          <Route path="/lowongan-full" element={<LowonganKerjaFull />} />
+          <Route path="/kontak" element={<KontakFull />} />
+          <Route path="/berita" element={<Berita />} />
+          <Route path="/isi-berita" element={<IsiBerita />} />
+          <Route path="/syarat-loker" element={<SyaratLoker />} />
 
-        {/* =========================================
-            2. ROUTE LOGIN ADMIN
-           ========================================= */}
-        <Route path="/admin/login" element={<LoginAdmin />} />
+          <Route path="/admin/login" element={<LoginAdmin />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/admin/redirect" element={<RedirectBasedOnRole />} />
 
-        {/* =========================================
-            3. ROUTE ADMIN (PROTECTED)
-            Menggunakan logika allowedRoles
-           ========================================= */}
+          <Route path="/writer" element={<ProtectedRouteAdmin allowedRoles={["writer"]} />}>
+            <Route index element={<Navigate to="/writer/dashboard" replace />} />
+            <Route path="dashboard" element={<WriterDashboard />} />
+            <Route path="articles" element={<WriterArticlesIndex />} />
+            <Route path="articles/create" element={<WriterArticleForm />} />
+            <Route path="articles/edit/:id" element={<WriterArticleForm />} />
+            <Route path="tasks" element={<WriterTaskIndex />} />
+            <Route path="profile" element={<WriterProfile />} />
+          </Route>
 
-        {/* --- GROUP 1: DASHBOARD UMUM --- 
-            Bisa diakses oleh: SUPER ADMIN & ADMIN KONTEN
-        */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminApp />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* --- GROUP 2: MANAJEMEN KONTEN HARIAN --- 
-            Bisa diakses oleh: SUPER ADMIN & ADMIN KONTEN
-        */}
-
-        {/* Module Berita (REFACTORED) */}
-        <Route
-          path="/admin/berita"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminNewsIndex />
-            </ProtectedRouteAdmin>
-          }
-        />
-        {/* Redirect route edit lama ke index baru */}
-        <Route
-          path="/admin/edit-berita"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminNewsIndex />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/isi-berita"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminIsiBerita />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* Module Lowongan Kerja & Pelamar */}
-        <Route
-          path="/admin/lowongan-kerja" // Halaman Daftar Pelamar
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminLowonganKerja />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/lowongan-full"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminLowonganKerjaFull />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/syarat-loker"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminSyaratLoker />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-loker" // Halaman Edit Konten Statis Loker
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminEditLowonganKerja />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* Module Posisi Pekerjaan (REFACTORED - CRUD Master Data) */}
-        <Route
-          path="/admin/edit-posisi-pekerjaan"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminJobPositionsIndex />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* Module Internship */}
-        <Route
-          path="/admin/internship"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminInternship />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-internship"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin", "admin_konten"]}>
-              <AdminEditInternship />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* --- GROUP 3: AREA SENSITIF & KONFIGURASI (KHUSUS SUPER ADMIN) --- 
-            Hanya Super Admin yang bisa akses setting vital perusahaan
-        */}
-
-        {/* Profil & Akun */}
-        <Route
-          path="/admin/profil"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminProfil />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* Informasi Perusahaan */}
-        <Route
-          path="/admin/tentang-kami"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminTentangKamiFull />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-info" // Edit Halaman Tentang Kami
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminEditTentangKami />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/bisnis-kami"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminBisnisKamiFull />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-bisnis-kami"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminEditBisnisKami />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/kontak"
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminKontakFull />
-            </ProtectedRouteAdmin>
-          }
-        />
-
-        {/* Tampilan Website & Layout */}
-        <Route
-          path="/admin/dashboard" // Edit Navbar & Logo
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminDashboard />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-appearance" // Edit Hero Section
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminEditHeroSection />
-            </ProtectedRouteAdmin>
-          }
-        />
-        <Route
-          path="/admin/edit-link" // Edit Link Sosmed
-          element={
-            <ProtectedRouteAdmin allowedRoles={["super_admin"]}>
-              <AdminLink />
-            </ProtectedRouteAdmin>
-          }
-        />
-      </Routes>
-    </BrowserRouter>
+          <Route path="/admin" element={<ProtectedRouteAdmin allowedRoles={["admin", "super_admin"]} />}>
+            <Route index element={<AdminApp />} />
+            <Route path="berita" element={<AdminNewsIndex />} />
+            <Route path="edit-berita" element={<AdminNewsIndex />} />
+            <Route path="isi-berita" element={<AdminIsiBerita />} />
+            <Route path="lowongan-kerja" element={<AdminLowonganKerja />} />
+            <Route path="job-applications" element={<AdminJobApplicationsIndex />} />
+            <Route path="lowongan-full" element={<AdminLowonganKerjaFull />} />
+            <Route path="syarat-loker" element={<AdminSyaratLoker />} />
+            <Route path="edit-loker" element={<AdminEditLowonganKerja />} />
+            <Route path="edit-posisi-pekerjaan" element={<AdminJobPositionsIndex />} />
+            <Route path="internship" element={<AdminInternship />} />
+            <Route path="internship-applications" element={<AdminInternshipApplicationsIndex />} />
+            <Route path="edit-internship" element={<AdminEditInternship />} />
+            <Route path="tasks" element={<AdminTaskIndex />} />
+            <Route path="activity-log" element={<AdminActivityLog />} />
+            <Route path="profil" element={<AdminProfil />} />
+            <Route path="tentang-kami" element={<AdminTentangKamiFull />} />
+            <Route path="edit-info" element={<AdminEditTentangKami />} />
+            <Route path="bisnis-kami" element={<AdminBisnisKamiFull />} />
+            <Route path="edit-bisnis-kami" element={<AdminEditBisnisKami />} />
+            <Route path="kontak" element={<AdminKontakFull />} />
+            <Route path="contacts" element={<AdminContactMessageIndex />} />
+            <Route path="hub-beranda" element={<HubBeranda />} />
+            <Route path="hub-berita" element={<HubBerita />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="edit-appearance" element={<AdminEditHeroSection />} />
+            <Route path="edit-link" element={<AdminLink />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>
 );

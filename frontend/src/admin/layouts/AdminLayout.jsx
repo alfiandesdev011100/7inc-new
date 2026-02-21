@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar.jsx";
+import api from "../../api/axios";
 
 const AdminLayout = ({ children }) => {
   const navigate = useNavigate();
@@ -11,7 +12,13 @@ const AdminLayout = ({ children }) => {
   useEffect(() => {
     const data = localStorage.getItem("adminData");
     if (data) {
-      setAdmin(JSON.parse(data));
+      try {
+        setAdmin(JSON.parse(data));
+      } catch (e) {
+        console.error("Failed to parse adminData:", e);
+        // Optional: clear bad data
+        localStorage.removeItem("adminData");
+      }
     }
 
     // Efek shadow pada header saat di-scroll
@@ -27,8 +34,13 @@ const AdminLayout = ({ children }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fungsi Logout Sederhana
-  const handleLogout = () => {
+  // Fungsi Logout dengan hit ke Backend
+  const handleLogout = async () => {
+    try {
+      await api.post("/admin/logout");
+    } catch (e) {
+      console.warn("Backend logout failed, proceeding with local cleanup", e);
+    }
     // Hapus data session
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminData");
@@ -52,9 +64,8 @@ const AdminLayout = ({ children }) => {
         {/* 3. TOP HEADER (Navbar Atas) */}
         {/* PERBAIKAN: Mengubah z-40 menjadi z-30 agar tetap di bawah Sidebar (saat mobile/collapse) & Modal */}
         <header
-          className={`sticky top-0 z-30 flex items-center justify-between w-full px-6 py-4 bg-white/80 backdrop-blur-md transition-all duration-200 ${
-            scrolled ? "shadow-sm" : ""
-          }`}
+          className={`sticky top-0 z-30 flex items-center justify-between w-full px-6 py-4 bg-white/80 backdrop-blur-md transition-all duration-200 ${scrolled ? "shadow-sm" : ""
+            }`}
         >
           {/* Bagian Kiri Header (Judul / Sapaan) */}
           <div>
@@ -73,13 +84,12 @@ const AdminLayout = ({ children }) => {
           <div className="flex items-center gap-4">
             {/* Role Badge */}
             <div
-              className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                admin?.role === "super_admin"
-                  ? "bg-purple-100 text-purple-700 border border-purple-200"
-                  : "bg-green-100 text-green-700 border border-green-200"
-              }`}
+              className={`px-3 py-1 text-xs font-semibold rounded-full ${admin?.role === "super_admin"
+                ? "bg-purple-100 text-purple-700 border border-purple-200"
+                : "bg-blue-100 text-blue-700 border border-blue-200"
+                }`}
             >
-              {admin?.role === "super_admin" ? "Super Admin" : "Content Writer"}
+              {admin?.role === "super_admin" ? "Super Admin" : "Administrator"}
             </div>
 
             {/* Divider */}

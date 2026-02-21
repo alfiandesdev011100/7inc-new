@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import Layout from "../components/Layout";
 import Footer from "../components/Footer";
 import Container from "../components/Container";
@@ -44,7 +45,14 @@ const allCards = {
 const Berita = () => {
     const location = useLocation();
     const [currentPage, setCurrentPage] = useState(1);
+    const [settings, setSettings] = useState(null);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        axios.get(`${import.meta.env.VITE_API_BASE || 'import.meta.env.VITE_API_URL'}/news-page-settings`)
+            .then(res => setSettings(res.data))
+            .catch(() => { });
+    }, []);
     const totalPages = Object.keys(allCards).length;
 
 
@@ -61,11 +69,11 @@ const Berita = () => {
             <div className="bg-white text-gray-800">
                 {/* Hero Section */}
                 <div className="relative w-full max-w-[1440px] h-[510px] mx-auto">
-                    <img src="/assets/img/Banner3.png" alt="Header Berita" className="w-full h-full object-cover" />
+                    <img src={settings?.banner_image_url || "/assets/img/Banner3.png"} alt="Header Berita" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-black/5" />
                     <div className="absolute inset-0 flex flex-col justify-center items-center text-center">
-                        <h3 className="uppercase tracking-[0.5em] text-gray-950 text-[18px] mb-4">List Berita</h3>
-                        <h1 className="text-gray-950 font-bold text-[36px] md:text-[40px] leading-snug">Beberapa berita terbaru kami</h1>
+                        <h3 className="uppercase tracking-[0.5em] text-gray-950 text-[18px] mb-4">{settings?.banner_subtitle || "List Berita"}</h3>
+                        <h1 className="text-gray-950 font-bold text-[36px] md:text-[40px] leading-snug">{settings?.banner_title || "Beberapa berita terbaru kami"}</h1>
                     </div>
                 </div>
 
@@ -171,8 +179,8 @@ const Berita = () => {
                                             <button
                                                 onClick={() => setCurrentPage(page)}
                                                 className={`cursor-pointer transition-colors duration-200 font-bold text-[18px] ${currentPage === page
-                                                        ? "text-red-500"
-                                                        : "text-black hover:text-red-500"
+                                                    ? "text-red-500"
+                                                    : "text-black hover:text-red-500"
                                                     }`}
                                             >
                                                 {page}

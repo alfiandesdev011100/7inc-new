@@ -11,7 +11,7 @@ const BisnisKami = () => {
         // Fetch data dari API untuk Lini Bisnis Kami dan Satu Visi, Banyak Solusi
         const fetchData = async () => {
             try {
-                const response = await axios.get('http://127.0.0.1:8000/api/bisnis-kami-full');
+                const response = await axios.get('import.meta.env.VITE_API_URL/bisnis-kami-full');
                 const data = response.data;
                 setHeaderSubtitle(data.header_subtitle || 'Lini Bisnis Kami');
                 setHeaderTitle(data.header_title || 'Satu Visi, Banyak Solusi');

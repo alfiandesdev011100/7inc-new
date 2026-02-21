@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, Fragment } from "react";
 import AdminLayout from "../layouts/AdminLayout";
 import Container from "../components/Container";
+import SectionArticlesManager from "../components/SectionArticlesManager";
 import axios from "axios";
 
 
@@ -23,7 +24,7 @@ export default function EditInternship() {
     const [loading, setLoading] = useState(false);
     const token = localStorage.getItem("adminToken");
     const api = axios.create({
-        baseURL: "http://127.0.0.1:8000/api",
+        baseURL: "import.meta.env.VITE_API_URL",
         headers: { Accept: "application/json", Authorization: token ? `Bearer ${token}` : "" },
     });
 
@@ -37,7 +38,7 @@ export default function EditInternship() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/internship/hero");
+                const res = await axios.get("import.meta.env.VITE_API_URL/internship/hero");
                 const d = res.data?.data;
                 setSubtitle(d?.subtitle || ""); setTitle(d?.title || ""); setImageUrl(d?.image_url || null);
             } catch { setAlert({ type: "error", message: "Gagal memuat data hero." }); }
@@ -84,7 +85,7 @@ export default function EditInternship() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/internship/core-values");
+                const res = await axios.get("import.meta.env.VITE_API_URL/internship/core-values");
                 const h = res.data?.data?.header; const list = res.data?.data?.cards || [];
                 setCoreTitle(h?.core_title || ""); setCoreHeadline(h?.core_headline || ""); setCoreParagraph(h?.core_paragraph || ""); setCoreCards(list);
             } catch { setAlert({ type: "error", message: "Gagal memuat Core Value." }); }
@@ -137,7 +138,7 @@ export default function EditInternship() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/internship/terms");
+                const res = await axios.get("import.meta.env.VITE_API_URL/internship/terms");
                 const h = res.data?.data?.header ?? {};
                 const items = (res.data?.data?.items ?? []).map(t => typeof t === "string" ? t : t?.text ?? "");
                 setTermsSubtitle(h.subtitle ?? ""); setTermsHeadline(h.headline ?? ""); setTerms(items);
@@ -180,7 +181,7 @@ export default function EditInternship() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/internship/formations");
+                const res = await axios.get("import.meta.env.VITE_API_URL/internship/formations");
                 const h = res.data?.data?.header ?? {};
                 setFormSub(h.subtitle ?? ""); setFormHead(h.headline ?? ""); setFormPara(h.paragraph ?? "");
                 setFormCards(res.data?.data?.cards ?? []);
@@ -231,7 +232,7 @@ export default function EditInternship() {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get("http://127.0.0.1:8000/api/internship/facilities");
+                const res = await axios.get("import.meta.env.VITE_API_URL/internship/facilities");
                 const h = res.data?.data?.header ?? {};
                 const items = (res.data?.data?.items ?? []).map(t => typeof t === "string" ? t : t?.text ?? "");
                 setFacSub(h.subtitle ?? ""); setFacHead(h.headline ?? ""); setFacItems(items);
@@ -492,6 +493,12 @@ export default function EditInternship() {
                         </div>
                     </div>
                 </section>
+
+                {/* Section Drafts & Articles */}
+                <SectionArticlesManager
+                    targetPage="internship"
+                    title="Daftar Artikel Section Internship"
+                />
             </Container>
         </AdminLayout>
     );
