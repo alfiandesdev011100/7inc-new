@@ -1,0 +1,9 @@
+# Mark certain folders as vendored (libraries) so they don't count towards language stats
+public/js/* linguist-vendored
+public/css/* linguist-vendored
+frontend/node_modules/* linguist-vendored
+backend/vendor/* linguist-vendored
+
+# Explicitly mark PHP as the primary focus if needed (optional)
+*.php linguist-detectable=true
+*.jsx linguist-detectable=true
